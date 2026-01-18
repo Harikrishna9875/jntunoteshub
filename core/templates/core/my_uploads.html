@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<h3 class="fw-bold mb-3">My Uploads</h3>
+
+<div class="row g-3">
+  {% for note in uploads %}
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 p-3 h-100">
+        <h6 class="fw-bold mb-1">{{ note.title }}</h6>
+        <p class="small text-secondary mb-1"><b>Subject:</b> {{ note.subject.name }}</p>
+        <p class="small text-secondary mb-1"><b>Status:</b> {{ note.status }}</p>
+
+        <div class="d-flex gap-2 mt-3">
+          <a class="btn btn-primary w-100 fw-semibold rounded-4"
+             href="{% url 'view_note' note.id %}">
+            View
+          </a>
+
+          <form method="POST" action="{% url 'delete_upload' note.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="btn btn-danger fw-semibold rounded-4"
+                    onclick="return confirm('Delete this upload? (-10 points)');">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info rounded-4">
+        You have not uploaded anything yet.
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

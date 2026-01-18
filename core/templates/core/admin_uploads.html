@@ -1,0 +1,98 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">Admin Upload Verification</h3>
+    <p class="text-secondary fw-semibold mb-0">Verify or remove uploads quickly.</p>
+  </div>
+</div>
+
+<div class="bg-white border rounded-4 shadow-sm p-3">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr class="text-secondary small">
+          <th>Title</th>
+          <th>Subject</th>
+          <th>Uploader</th>
+          <th>Status</th>
+          <th>Reports</th>
+          <th>Rating</th>
+          <th style="width:240px;">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for u in uploads %}
+        <tr>
+          <td>
+            <div class="fw-bold">{{ u.title }}</div>
+            <div class="text-secondary small">{{ u.get_upload_type_display }}</div>
+          </td>
+
+          <td class="text-secondary fw-semibold small">
+            {{ u.subject.branch.name }} • Sem {{ u.subject.semester.number }}<br>
+            {{ u.subject.name }}
+          </td>
+
+          <td class="fw-semibold">{{ u.uploader.username }}</td>
+
+          <td>
+            {% if u.status == "VERIFIED" %}
+              <span class="badge bg-success rounded-pill">Verified</span>
+            {% elif u.status == "UNVERIFIED" %}
+              <span class="badge bg-warning text-dark rounded-pill">Unverified</span>
+            {% else %}
+              <span class="badge bg-danger rounded-pill">Removed</span>
+            {% endif %}
+          </td>
+
+          <td>
+            <span class="badge bg-light text-dark border rounded-pill">
+              {{ u.report_count }}
+            </span>
+          </td>
+
+          <td class="text-secondary fw-semibold">
+            ⭐ {% if u.avg_rating %}{{ u.avg_rating|floatformat:1 }}{% else %}0.0{% endif %}
+          </td>
+
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+              <a class="btn btn-outline-primary btn-sm fw-semibold rounded-4"
+                 href="{% url 'view_note' u.id %}">
+                View
+              </a>
+
+              {% if u.status != "VERIFIED" %}
+              <a class="btn btn-success btn-sm fw-semibold rounded-4"
+                 href="{% url 'verify_upload' u.id %}">
+                Verify
+              </a>
+              {% endif %}
+
+              {% if u.status != "REMOVED" %}
+              <a class="btn btn-danger btn-sm fw-semibold rounded-4"
+                 href="{% url 'remove_upload' u.id %}"
+                 onclick="return confirm('Remove this upload?');">
+                Remove
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-secondary fw-semibold py-4">
+            No uploads found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+{% endblock %}

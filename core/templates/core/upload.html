@@ -1,0 +1,127 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <div class="bg-white border rounded-4 shadow-sm p-4">
+      <h3 class="fw-bold mb-1">Upload Notes</h3>
+      <p class="text-secondary fw-semibold mb-4">
+        Upload PDF. Your upload will be <b>Unverified</b> until admin verifies it.
+      </p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-info fw-semibold rounded-4">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-3">
+
+          <!-- Branch -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Branch</label>
+            <select class="form-select rounded-4" name="branch" id="branchSelect" required>
+              <option value="">Select Branch</option>
+              {% for b in branches %}
+                <option value="{{ b.id }}">{{ b.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Semester -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Semester</label>
+            <select class="form-select rounded-4" name="semester" id="semesterSelect" required>
+              <option value="">Select Semester</option>
+              {% for s in semesters %}
+                <option value="{{ s.id }}">Semester {{ s.number }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Subject -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Subject</label>
+            <select class="form-select rounded-4" name="subject" id="subjectSelect" required>
+              <option value="">Select Subject</option>
+            </select>
+          </div>
+
+          <!-- Upload Type -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Type</label>
+            <select class="form-select rounded-4" name="upload_type" required>
+              <option value="">Select Type</option>
+              <option value="NOTES">Notes</option>
+              <option value="SPECTRUM">Spectrum</option>
+              <option value="PYQ">Previous Year Questions</option>
+              <option value="IMP">Important Questions</option>
+            </select>
+          </div>
+
+          <!-- Title -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Title</label>
+            <input type="text" class="form-control rounded-4" name="title" placeholder="Ex: Unit-1 Notes" required>
+          </div>
+
+          <!-- Description -->
+          <div class="col-md-12">
+            <label class="form-label fw-semibold">Description (optional)</label>
+            <textarea class="form-control rounded-4" name="description" rows="3"
+              placeholder="Ex: Complete notes for mid exam"></textarea>
+          </div>
+
+          <!-- File -->
+          <div class="col-md-12">
+            <label class="form-label fw-semibold">Upload PDF</label>
+            <input type="file" class="form-control rounded-4" name="file" accept=".pdf" required>
+          </div>
+
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button class="btn btn-primary fw-semibold rounded-4 px-4" type="submit">
+            Upload
+          </button>
+          <a class="btn btn-outline-dark fw-semibold rounded-4 px-4" href="{% url 'home' %}">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+async function loadSubjects() {
+  const branch = document.getElementById("branchSelect").value;
+  const semester = document.getElementById("semesterSelect").value;
+  const subjectSelect = document.getElementById("subjectSelect");
+
+  subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
+
+  if (!branch || !semester) return;
+
+  const url = `/api/subjects/?branch_id=${branch}&semester_id=${semester}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  data.forEach(sub => {
+    const opt = document.createElement("option");
+    opt.value = sub.id;
+    opt.textContent = sub.name;
+    subjectSelect.appendChild(opt);
+  });
+}
+
+document.getElementById("branchSelect").addEventListener("change", loadSubjects);
+document.getElementById("semesterSelect").addEventListener("change", loadSubjects);
+</script>
+
+{% endblock %}

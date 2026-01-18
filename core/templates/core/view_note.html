@@ -1,0 +1,150 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- Title + Info -->
+  <div class="card shadow-sm rounded-4 p-4 mb-4">
+    <h3 class="fw-bold mb-3">{{ note.title }}</h3>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <p class="mb-1 text-secondary"><b>Subject:</b> {{ note.subject.name }}</p>
+        <p class="mb-1 text-secondary"><b>Branch:</b> {{ note.subject.branch.name }}</p>
+        <p class="mb-1 text-secondary"><b>Semester:</b> Sem {{ note.subject.semester.number }}</p>
+      </div>
+
+      <div class="col-md-6">
+        <p class="mb-1 text-secondary"><b>Type:</b> {{ note.get_upload_type_display }}</p>
+
+        <!-- Status Badge -->
+        <p class="mb-1 text-secondary">
+          <b>Status:</b>
+          {% if note.status == "VERIFIED" %}
+            <span class="badge bg-success rounded-pill px-3 py-2">VERIFIED</span>
+          {% elif note.status == "UNVERIFIED" %}
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">UNVERIFIED</span>
+          {% else %}
+            <span class="badge bg-secondary rounded-pill px-3 py-2">{{ note.status }}</span>
+          {% endif %}
+        </p>
+
+        <!-- Rating Summary -->
+        <p class="mb-0 text-secondary">
+          <b>Avg Rating:</b>
+          {% if avg_rating %}
+            {{ avg_rating|floatformat:1 }} ⭐ ({{ rating_count }} ratings)
+          {% else %}
+            No ratings yet
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    {% if note.description %}
+      <hr>
+      <p class="text-secondary mb-0">{{ note.description }}</p>
+    {% endif %}
+
+    <!-- Buttons -->
+    <div class="d-flex flex-wrap gap-2 mt-4">
+
+      <!-- Always allow OPEN in new tab -->
+      <a href="{{ note.file.url }}" target="_blank" class="btn btn-outline-primary rounded-4 fw-semibold">
+        Open PDF
+      </a>
+
+      <!-- VERIFIED: allow download -->
+      {% if note.status == "VERIFIED" %}
+        <a href="{{ note.file.url }}" download class="btn btn-primary rounded-4 fw-semibold">
+          Download PDF
+        </a>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- PDF Preview -->
+  <div class="card shadow-sm rounded-4 p-4 mb-4">
+    <h5 class="fw-bold mb-3">Preview</h5>
+
+    {% if note.file %}
+      <object
+        data="{{ note.file.url }}"
+        type="application/pdf"
+        width="100%"
+        height="550px"
+        style="border-radius:16px; border:1px solid #ddd;"
+      >
+        <p class="text-secondary">
+          PDF preview not supported in this browser.
+          <a href="{{ note.file.url }}" target="_blank">Open PDF</a>
+        </p>
+      </object>
+    {% else %}
+      <div class="alert alert-warning rounded-4">
+        File not found.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Rating -->
+  <div class="card shadow-sm rounded-4 p-4 mb-4">
+    <h5 class="fw-bold mb-3">Rate this note</h5>
+
+    <form method="POST" action="{% url 'rate_note' note.id %}" class="row g-2 align-items-center">
+      {% csrf_token %}
+
+      <div class="col-md-4">
+        <select name="stars" class="form-select rounded-4" required>
+          <option value="">Select Rating</option>
+          <option value="1" {% if my_rating and my_rating.stars == 1 %}selected{% endif %}>⭐ 1</option>
+          <option value="2" {% if my_rating and my_rating.stars == 2 %}selected{% endif %}>⭐ 2</option>
+          <option value="3" {% if my_rating and my_rating.stars == 3 %}selected{% endif %}>⭐ 3</option>
+          <option value="4" {% if my_rating and my_rating.stars == 4 %}selected{% endif %}>⭐ 4</option>
+          <option value="5" {% if my_rating and my_rating.stars == 5 %}selected{% endif %}>⭐ 5</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-success rounded-4 fw-semibold w-100">
+          Submit
+        </button>
+      </div>
+    </form>
+
+    {% if my_rating %}
+      <p class="text-secondary mt-3 mb-0">
+        Your rating: <b>{{ my_rating.stars }} ⭐</b>
+      </p>
+    {% endif %}
+  </div>
+
+  <!-- Report -->
+  <div class="card shadow-sm rounded-4 p-4">
+    <h5 class="fw-bold mb-3">Report this note</h5>
+
+    <form method="POST" action="{% url 'report_note' note.id %}" class="row g-2 align-items-center">
+      {% csrf_token %}
+
+      <div class="col-md-6">
+        <select name="reason" class="form-select rounded-4" required>
+          <option value="">Select Reason</option>
+          <option value="SPAM">Spam</option>
+          <option value="WRONG">Wrong File</option>
+          <option value="COPYRIGHT">Copyright</option>
+          <option value="VULGAR">Vulgar / Bad Content</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-danger rounded-4 fw-semibold w-100">
+          Report
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

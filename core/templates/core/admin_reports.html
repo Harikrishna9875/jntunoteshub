@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">Admin Reports</h3>
+    <p class="text-secondary fw-semibold mb-0">See reported uploads and take action.</p>
+  </div>
+
+  <a href="{% url 'admin_uploads' %}" class="btn btn-outline-dark fw-semibold rounded-4">
+    Back to Uploads
+  </a>
+</div>
+
+<div class="bg-white border rounded-4 shadow-sm p-3 mb-4">
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="fw-semibold small text-secondary mb-1">Filter by Reason</label>
+      <select name="reason" class="form-select rounded-4" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="SPAM" {% if selected_reason == "SPAM" %}selected{% endif %}>Spam</option>
+        <option value="WRONG" {% if selected_reason == "WRONG" %}selected{% endif %}>Wrong Content</option>
+        <option value="COPYRIGHT" {% if selected_reason == "COPYRIGHT" %}selected{% endif %}>Copyright</option>
+        <option value="VULGAR" {% if selected_reason == "VULGAR" %}selected{% endif %}>Vulgar/Abuse</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <a class="btn btn-outline-dark fw-semibold rounded-4 w-100" href="{% url 'admin_reports' %}">
+        Reset
+      </a>
+    </div>
+  </form>
+</div>
+
+<div class="bg-white border rounded-4 shadow-sm p-3">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr class="text-secondary small">
+          <th>Upload</th>
+          <th>Uploader</th>
+          <th>Reporter</th>
+          <th>Reason</th>
+          <th>Reported At</th>
+          <th style="width:220px;">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td>
+            <div class="fw-bold">{{ r.upload.title }}</div>
+            <div class="text-secondary small">{{ r.upload.subject.name }}</div>
+          </td>
+
+          <td class="fw-semibold">{{ r.upload.uploader.username }}</td>
+          <td class="fw-semibold">{{ r.reporter.username }}</td>
+
+          <td>
+            {% if r.reason == "SPAM" %}
+              <span class="badge bg-secondary rounded-pill">Spam</span>
+            {% elif r.reason == "WRONG" %}
+              <span class="badge bg-warning text-dark rounded-pill">Wrong</span>
+            {% elif r.reason == "COPYRIGHT" %}
+              <span class="badge bg-danger rounded-pill">Copyright</span>
+            {% else %}
+              <span class="badge bg-dark rounded-pill">Vulgar</span>
+            {% endif %}
+          </td>
+
+          <td class="text-secondary fw-semibold small">
+            {{ r.created_at|date:"d M Y, h:i A" }}
+          </td>
+
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+              <a class="btn btn-outline-primary btn-sm fw-semibold rounded-4"
+                 href="{% url 'view_note' r.upload.id %}">
+                View
+              </a>
+
+              <a class="btn btn-danger btn-sm fw-semibold rounded-4"
+                 href="{% url 'remove_upload' r.upload.id %}"
+                 onclick="return confirm('Remove this upload?');">
+                Remove
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-secondary fw-semibold py-4">
+            No reports found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+{% endblock %}

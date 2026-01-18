@@ -150,7 +150,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://web-production-b9e58.up.railway.app",
+    "https://*.vercel.app",
 ]
-
 

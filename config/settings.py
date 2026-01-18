@@ -31,6 +31,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    "cloudinary",
+    "cloudinary_storage",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -152,4 +154,14 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 CSRF_TRUSTED_ORIGINS = [
     "https://*.vercel.app",
 ]
+
+import os
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("dhuxyjhgv"),
+    "API_KEY": os.getenv("643274658678717"),
+    "API_SECRET": os.getenv("pXszf0ayQOjTNNfjgvdStQVBIYI"),
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 

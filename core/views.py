@@ -6,6 +6,7 @@ from django.db.models import Avg, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 
 from .models import Branch, Semester, Subject, Upload, Rating, Report, PointsLog
 
@@ -72,7 +73,8 @@ def login_view(request):
 
     return render(request, "core/login.html")
 
-
+@never_cache
+@require_POST
 @login_required
 def logout_view(request):
     logout(request)

@@ -1,1 +1,1 @@
-web: gunicorn UPLOAD_NOTES.wsgi
+web: gunicorn config.wsgi:application
